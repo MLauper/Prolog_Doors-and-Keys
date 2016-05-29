@@ -19,7 +19,7 @@ contains_key(room1,key2).
 /* COMPLEX MAP
  * ===========
  */
-/*
+
 treasure_in(room18).
 
 door(room0, room1, key1).
@@ -31,7 +31,7 @@ door(room0, room4, key12).
 door(room0, room5, key21).
 door(room0, room6, key3).
 door(room0, room7, key16).
-door(room0, room14, key14).
+door(room0, room8, key14).
 door(room1, room9, key6).
 door(room5, room10, key17).
 door(room6, room11, key4).
@@ -51,6 +51,8 @@ contains_key(room1, key21).
 contains_key(room1, key7).
 contains_key(room1, key5).
 contains_key(room1, key14).
+contains_key(room9, key8).
+contains_key(room9, key9).
 contains_key(room2, key19).
 contains_key(room4, key13).
 contains_key(room10, key20).
@@ -63,11 +65,12 @@ contains_key(room17, key12).
 contains_key(room7, key17).
 contains_key(room7, key18).
 contains_key(room16, key16).
-*/
+
 
 /* EDGE MAP: Triangle
 *  ==================
 */
+/*
 treasure_in(room4).
 
 door(room0, room1, key01).
@@ -79,7 +82,7 @@ contains_key(room0, key01).
 contains_key(room1, key02).
 contains_key(room2, key12).
 contains_key(room2, key04).
-
+*/
 
 
 exist_door(FROM, TO, KEY) :- door(FROM, TO, KEY).
@@ -90,7 +93,7 @@ exist_door(FROM, TO, KEY) :- door(TO, FROM, KEY).
 
 /* play(ROOM, PLAYER_KEYS) */
 play(
-    ROOM, PLAYER_KEYS,
+    ROOM, /*PLAYER_KEYS,*/ _,
     STEPS_IN, STEPS_OUT,
     ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
     KEYS_USED_IN, KEYS_USED_OUT,
