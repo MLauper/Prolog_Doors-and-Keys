@@ -1,10 +1,23 @@
-treasure_in(room2).
 /* door(FROM, TO, KEY) */
+/* SIMPLE MAP
+ * ==========
+treasure_in(room2).
+
 door(room0,room1,key1).
 door(room1,room2,key2).
+
 contains_key(room0,key1).
 contains_key(room0,key99).
 contains_key(room1,key2).
+*/
+
+//* COMPLEX MAP
+// * ===========
+treasure_in(room18).
+
+door(room0, room1, key1)
+
+
 
 /* Player starts in a room with a list of keys */
 /* play(ROOM, PLAYER_KEYS, STEPS) :- pickup_key(ROOM,PLAYER_KEYS,PLAYER_KEYS_EXT), treasure(ROOM). */
