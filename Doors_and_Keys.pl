@@ -1,15 +1,15 @@
-/* play(room0, [], [], STEPS, [], ROOMS, [], KEYS, [room0], DIRTY_ROOMS). */
+/* play(room0, [], [], STEPS, [], ROOMS, [], KEYS, [room0], DIRTY_ROOMS, 1, BUDGET). */
 
 /* door(FROM, TO, KEY) */
 /* * SIMPLE MAP
  * ==========
- *
+
 treasure_in(room2).
 
 door(room0,room1,key1).
 door(room1,room2,key2).
-/* door(room1,room0,key1).
-door(room2,room1,key2). */
+door(room1,room0,key1).
+door(room2,room1,key2).
 
 contains_key(room0,key1).
 contains_key(room0,key99).
@@ -18,7 +18,7 @@ contains_key(room1,key2).
 
 /* COMPLEX MAP
  * ===========
- */
+
 
 treasure_in(room18).
 
@@ -65,12 +65,12 @@ contains_key(room17, key12).
 contains_key(room7, key17).
 contains_key(room7, key18).
 contains_key(room16, key16).
-
+*/
 
 /* EDGE MAP: Triangle
 *  ==================
 */
-/*
+
 treasure_in(room4).
 
 door(room0, room1, key01).
@@ -82,7 +82,7 @@ contains_key(room0, key01).
 contains_key(room1, key02).
 contains_key(room2, key12).
 contains_key(room2, key04).
-*/
+
 
 
 exist_door(FROM, TO, KEY) :- door(FROM, TO, KEY).
@@ -92,12 +92,48 @@ exist_door(FROM, TO, KEY) :- door(TO, FROM, KEY).
 /* play(ROOM, PLAYER_KEYS, STEPS) :- pickup_key(ROOM,PLAYER_KEYS,PLAYER_KEYS_EXT), treasure(ROOM). */
 
 /* play(ROOM, PLAYER_KEYS) */
-play(
-    ROOM, /*PLAYER_KEYS,*/ _,
+
+/* MAX BUDGET: 1000 */
+playOptimal(ROOM, PLAYER_KEYS,
     STEPS_IN, STEPS_OUT,
     ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
     KEYS_USED_IN, KEYS_USED_OUT,
-    DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT) :-
+    DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT,
+    COST_IN, COST_OUT,
+    LIMIT_IN, LIMIT_OUT) :-
+	findall(COST_X, setof(TOTAL_COST,
+			      play(
+				  ROOM, PLAYER_KEYS,
+				  STEPS_IN, STEPS_OUT,
+				  ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
+				  KEYS_USED_IN, KEYS_USED_OUT,
+				  DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT,
+				  COST_IN, TOTAL_COST,
+				  LIMIT_IN, LIMIT_OUT),
+			      COST_X),
+		COSTS),
+	min_list_of_lists(COSTS, MIN),
+	play(
+	    ROOM, PLAYER_KEYS,
+	    STEPS_IN, STEPS_OUT,
+	    ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
+	    KEYS_USED_IN, KEYS_USED_OUT,
+	    DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT,
+	    COST_IN, COST_OUT,
+	    MIN, LIMIT_OUT),
+	write(MIN).
+
+
+play(
+    ROOM, PLAYER_KEYS,
+    STEPS_IN, STEPS_OUT,
+    ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
+    KEYS_USED_IN, KEYS_USED_OUT,
+    DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT,
+    COST_IN, COST_OUT,
+    LIMIT_IN, LIMIT_OUT) :-
+	COST_OUT is COST_IN,
+	LIMIT_OUT is LIMIT_IN,
 	treasure_in(ROOM),
 	all_keys_used(PLAYER_KEYS, KEYS_USED_IN),
 	string_concat("Treasure found in Room ", ROOM, MESSAGE),
@@ -110,7 +146,12 @@ play(ROOM, PLAYER_KEYS,
      STEPS_IN, STEPS_OUT,
      ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
      KEYS_USED_IN, KEYS_USED_OUT,
-     DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT) :-
+     DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT,
+     COST_IN, COST_OUT,
+     LIMIT_IN, LIMIT_OUT) :-
+	LIMIT_IN > 0,
+	LIMIT_X is LIMIT_IN - 1,
+	COST_X is COST_IN + 1,
 	switchRoom(
 	    ROOM,PLAYER_KEYS,NEW_ROOM,
 	    STEPS_IN, STEPS_X,
@@ -122,13 +163,20 @@ play(ROOM, PLAYER_KEYS,
 	    STEPS_X, STEPS_OUT,
 	    ROOMS_TRAVERSED_X, ROOMS_TRAVERSED_OUT,
 	    KEYS_USED_X, KEYS_USED_OUT,
-	    DIRTY_ROOMS_X, DIRTY_ROOMS_OUT).
+	    DIRTY_ROOMS_X, DIRTY_ROOMS_OUT,
+	    COST_X, COST_OUT,
+	    LIMIT_X, LIMIT_OUT).
 
 play(ROOM, PLAYER_KEYS,
      STEPS_IN, STEPS_OUT,
      ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
      KEYS_USED_IN, KEYS_USED_OUT,
-     DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT) :-
+     DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT,
+     COST_IN, COST_OUT,
+     LIMIT_IN, LIMIT_OUT) :-
+	LIMIT_IN > 0,
+	LIMIT_X is LIMIT_IN -1,
+	COST_X is COST_IN + 1,
 	pickupKey(
 	    ROOM, PLAYER_KEYS, NEW_PLAYER_KEYS,
 	    STEPS_IN, STEPS_X,
@@ -140,7 +188,29 @@ play(ROOM, PLAYER_KEYS,
 	    STEPS_X, STEPS_OUT,
 	    ROOMS_TRAVERSED_X, ROOMS_TRAVERSED_OUT,
 	    KEYS_USED_X, KEYS_USED_OUT,
-	    DIRTY_ROOMS_X, DIRTY_ROOMS_OUT).
+	    DIRTY_ROOMS_X, DIRTY_ROOMS_OUT,
+	    COST_X, COST_OUT,
+	    LIMIT_X, LIMIT_OUT).
+
+/*
+play(ROOM, PLAYER_KEYS,
+     STEPS_IN, STEPS_OUT,
+     ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
+     KEYS_USED_IN, KEYS_USED_OUT,
+     DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT,
+     COST_IN, COST_OUT,
+     LIMIT_IN, LIMIT_OUT) :-
+	LIMIT_IN = 0,
+	LIMIT_X is LIMIT_IN + 1,
+	COST_X is COST_IN,
+	play(ROOM, PLAYER_KEYS,
+	     STEPS_IN, STEPS_OUT,
+	     ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
+	     KEYS_USED_IN, KEYS_USED_OUT,
+	     DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT,
+	     COST_X, COST_OUT,
+	     LIMIT_X, LIMIT_OUT).
+*/
 
 switchRoom(ROOM, PLAYER_KEYS, NEW_ROOM,
 	   STEPS_IN, STEPS_OUT,
@@ -191,3 +261,33 @@ all_keys_used(KEYS, USED_KEYS) :-
 	[KEY | REST] = KEYS,
 	member(KEY, USED_KEYS),
 	all_keys_used(REST, USED_KEYS).
+
+min_list_of_lists(LISTS, _) :-
+	LISTS = [],
+	fail().
+
+min_list_of_lists(LISTS, MIN) :-
+	min_list_of_lists(LISTS, 1000, MIN).
+
+min_list_of_lists(LISTS, MIN_IN, MIN_OUT) :-
+	LISTS = [],
+	MIN_OUT is MIN_IN.
+
+min_list_of_lists(LISTS, MIN_IN, MIN_OUT) :-
+	[VALLIST | REST] = LISTS,
+	[VAL | _] = VALLIST,
+	MIN_IN < VAL,
+	min_list_of_lists(REST, MIN_IN, MIN_OUT).
+
+min_list_of_lists(LISTS, MIN_IN, MIN_OUT) :-
+	[VALLIST | REST] = LISTS,
+	[VAL | _] = VALLIST,
+	VAL < MIN_IN,
+	min_list_of_lists(REST, VAL, MIN_OUT).
+
+
+
+
+
+
+
