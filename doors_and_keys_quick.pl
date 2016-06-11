@@ -1,63 +1,5 @@
-playOptimal(ROOM, PLAYER_KEYS,
-    STEPS_IN, STEPS_OUT,
-    ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
-    KEYS_USED_IN, KEYS_USED_OUT,
-    DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT,
-    COST_IN, COST_OUT,
-    LIMIT_IN, LIMIT_OUT) :-
-	findMinCostOfGame(ROOM, PLAYER_KEYS,
-		STEPS_IN, _,
-		ROOMS_TRAVERSED_IN, _,
-		KEYS_USED_IN, _,
-		DIRTY_ROOMS_IN, _,
-		COST_IN, _,
-		LIMIT_IN, _,
-		0, LIMIT_IN,
-		MIN),
-	play(
-	    ROOM, PLAYER_KEYS,
-	    STEPS_IN, STEPS_OUT,
-	    ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
-	    KEYS_USED_IN, KEYS_USED_OUT,
-	    DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT,
-	    COST_IN, COST_OUT,
-	    MIN, LIMIT_OUT),
-	pretty_print_steps_and_cost(STEPS_OUT, COST_OUT).
-
-findMinCostOfGame(ROOM, PLAYER_KEYS,
-    STEPS_IN, _,
-    ROOMS_TRAVERSED_IN, _,
-    KEYS_USED_IN, _,
-    DIRTY_ROOMS_IN, _,
-    COST_IN, _,
-    _, _,
-	INIT_SEARCH_LIMIT, MAX_SEARCH_LIMIT,
-	MIN):-
-		increaseSearchLimit(INIT_SEARCH_LIMIT, SEARCH_LIMIT_X, MAX_SEARCH_LIMIT),
-		findall(COST_X, setof(TOTAL_COST,
-			      play(
-				  ROOM, PLAYER_KEYS,
-				  STEPS_IN, _,
-				  ROOMS_TRAVERSED_IN, _,
-				  KEYS_USED_IN, _,
-				  DIRTY_ROOMS_IN, _,
-				  COST_IN, TOTAL_COST,
-				  SEARCH_LIMIT_X, _),
-			      COST_X),
-		COSTS),
-		min_list_of_lists(COSTS, MIN).
-
-increaseSearchLimit(SEARCH_LIMIT_IN, SEARCH_LIMIT_OUT, LIMIT) :-
-	SEARCH_LIMIT_IN < LIMIT,
-	SEARCH_LIMIT_OUT is SEARCH_LIMIT_IN + 100.
-
-increaseSearchLimit(SEARCH_LIMIT_IN, SEARCH_LIMIT_OUT, LIMIT) :-
-	SEARCH_LIMIT_IN < LIMIT,
-	increaseSearchLimit(SEARCH_LIMIT_IN, SEARCH_LIMIT_X, LIMIT),
-	SEARCH_LIMIT_OUT is SEARCH_LIMIT_X + 100.
-
 play(
-    ROOM, PLAYER_KEYS,
+    ROOM, _,
     STEPS_IN, STEPS_OUT,
     ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
     KEYS_USED_IN, KEYS_USED_OUT,
@@ -67,12 +9,12 @@ play(
 	COST_OUT is COST_IN,
 	LIMIT_OUT is LIMIT_IN,
 	treasure_in(ROOM),
-	all_keys_used(PLAYER_KEYS, KEYS_USED_IN),
 	string_concat("Treasure found in Room ", ROOM, MESSAGE),
 	append(STEPS_IN, [MESSAGE], STEPS_OUT),
 	append(ROOMS_TRAVERSED_IN, [], ROOMS_TRAVERSED_OUT),
 	append(KEYS_USED_IN, [], KEYS_USED_OUT),
-	append(DIRTY_ROOMS_IN, [], DIRTY_ROOMS_OUT).
+	append(DIRTY_ROOMS_IN, [], DIRTY_ROOMS_OUT),
+	pretty_print_steps_and_cost(STEPS_OUT, COST_OUT).
 
 play(ROOM, PLAYER_KEYS,
      STEPS_IN, STEPS_OUT,
@@ -168,39 +110,6 @@ pickupKey(ROOM, PLAYER_KEYS, NEW_PLAYER_KEYS,
 	
 exist_door(FROM, TO, KEY) :- door(FROM, TO, KEY).
 exist_door(FROM, TO, KEY) :- door(TO, FROM, KEY).
-
-all_keys_used(KEYS, _) :-
-	KEYS = [].
-
-all_keys_used(KEYS, USED_KEYS) :-
-	[KEY | REST] = KEYS,
-	member(KEY, USED_KEYS),
-	all_keys_used(REST, USED_KEYS).
-
-min_list_of_lists(LISTS, _) :-
-	LISTS = [],
-	fail().
-
-min_list_of_lists(LISTS, MIN) :-
-	[FIRST | REST] = LISTS,
-	[MIN_X | _] = FIRST,
-	min_list_of_lists(REST, MIN_X, MIN).
-
-min_list_of_lists(LISTS, MIN_IN, MIN_OUT) :-
-	LISTS = [],
-	MIN_OUT is MIN_IN.
-
-min_list_of_lists(LISTS, MIN_IN, MIN_OUT) :-
-	[VALLIST | REST] = LISTS,
-	[VAL | _] = VALLIST,
-	MIN_IN < VAL,
-	min_list_of_lists(REST, MIN_IN, MIN_OUT).
-
-min_list_of_lists(LISTS, MIN_IN, MIN_OUT) :-
-	[VALLIST | REST] = LISTS,
-	[VAL | _] = VALLIST,
-	VAL < MIN_IN,
-	min_list_of_lists(REST, VAL, MIN_OUT).
 
 pretty_print_steps_and_cost(STEPS, COST) :-
 	write("===============================================\n"),
