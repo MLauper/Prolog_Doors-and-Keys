@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /* play(room0, [], [], STEPS, [], ROOMS, [], KEYS, [room0], DIRTY_ROOMS, 1, BUDGET). */
 
 /* door(FROM, TO, KEY) */
@@ -124,9 +123,6 @@ playOptimal(ROOM, PLAYER_KEYS,
 	    MIN, LIMIT_OUT),
 	write(MIN).
 
-
-=======
->>>>>>> 9df8aa4ae6964e38a4f4a6885723cb4ca65494e5
 play(
     ROOM, PLAYER_KEYS,
     STEPS_IN, STEPS_OUT,
@@ -195,29 +191,6 @@ play(ROOM, PLAYER_KEYS,
 	    COST_X, COST_OUT,
 	    LIMIT_X, LIMIT_OUT).
 
-/*
-play(ROOM, PLAYER_KEYS,
-     STEPS_IN, STEPS_OUT,
-     ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
-     KEYS_USED_IN, KEYS_USED_OUT,
-     DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT,
-     COST_IN, COST_OUT,
-     LIMIT_IN, LIMIT_OUT) :-
-	LIMIT_IN = 0,
-	LIMIT_X is LIMIT_IN + 1,
-	COST_X is COST_IN,
-	play(ROOM, PLAYER_KEYS,
-	     STEPS_IN, STEPS_OUT,
-	     ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
-	     KEYS_USED_IN, KEYS_USED_OUT,
-	     DIRTY_ROOMS_IN, DIRTY_ROOMS_OUT,
-	     COST_X, COST_OUT,
-	     LIMIT_X, LIMIT_OUT).
-*/
-
-exist_door(FROM, TO, KEY) :- door(FROM, TO, KEY).
-exist_door(FROM, TO, KEY) :- door(TO, FROM, KEY).
-
 switchRoom(ROOM, PLAYER_KEYS, NEW_ROOM,
 	   STEPS_IN, STEPS_OUT,
 	   ROOMS_TRAVERSED_IN, ROOMS_TRAVERSED_OUT,
@@ -267,7 +240,6 @@ all_keys_used(KEYS, USED_KEYS) :-
 	[KEY | REST] = KEYS,
 	member(KEY, USED_KEYS),
 	all_keys_used(REST, USED_KEYS).
-<<<<<<< HEAD
 
 min_list_of_lists(LISTS, _) :-
 	LISTS = [],
@@ -291,12 +263,3 @@ min_list_of_lists(LISTS, MIN_IN, MIN_OUT) :-
 	[VAL | _] = VALLIST,
 	VAL < MIN_IN,
 	min_list_of_lists(REST, VAL, MIN_OUT).
-
-
-
-
-
-
-
-=======
->>>>>>> 9df8aa4ae6964e38a4f4a6885723cb4ca65494e5
